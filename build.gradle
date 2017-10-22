@@ -1,0 +1,76 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.1.0'
+    }
+
+}
+
+group 'com.grpcvsrest'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+startScripts.enabled = false
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'io.grpc:grpc-all:1.6.1'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+    compile project(':grpc-api')
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+
+def mainClassName = "com.grpcvsrest.grpc.voting.VotingServer"
+
+task runServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "$mainClassName"
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task buildDocker(type: DockerBuildImage) {
+    dependsOn build
+    inputDir = project.projectDir
+    tag = 'grpc-voting:latest'
+}
+
+task tagDocker(type: Exec) {
+    dependsOn buildDocker
+    commandLine 'docker', 'tag', 'grpc-voting:latest', 'gcr.io/alien-fold-180922/grpc-voting:latest'
+}
+
+task pushDocker(type: Exec) {
+    dependsOn tagDocker
+    commandLine 'gcloud', 'docker', '--', 'push', 'gcr.io/alien-fold-180922/grpc-voting:latest'
+}
+
+task deploy(type: Exec) {
+    commandLine './k8s/deploy.sh'
+}
+
+task undeploy(type: Exec) {
+    commandLine 'kubectl', 'delete', '-f', 'k8s/grpc-voting.yaml'
+}
