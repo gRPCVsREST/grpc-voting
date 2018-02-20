@@ -13,13 +13,13 @@ spec:
     spec:
       containers:
         - name: grpc-voting
-          image: gcr.io/alien-fold-180922/grpc-voting:latest
+          image: gcr.io/$GCP_PROJECT/grpc-voting:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
             - name: grpc_aggregator_host
-              value: "grpc-aggregator-service"
+              value: "grpc-aggregator"
             - name: grpc_aggregator_port
               value: "8080"
             - name: leaderboard_host
