@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: grpc-voting
-          image: gcr.io/alien-fold-180922/grpc-voting:latest
+          image: gcr.io/$GCP_PROJECT/grpc-voting:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -28,6 +28,10 @@ spec:
               value: "8090"
             - name: counter
               value: "$(date +%s)"
+            - name: ZIPKIN_SERVICE_HOST
+              value: "zipkin"
+            - name: ZIPKIN_SERVICE_PORT
+              value: "9411"
 ---
 apiVersion: v1
 kind: Service
