@@ -53,26 +53,4 @@ jar {
     }
 }
 
-task buildDocker(type: DockerBuildImage) {
-    dependsOn build
-    inputDir = project.projectDir
-    tag = 'grpc-voting:latest'
-}
-
-task tagDocker(type: Exec) {
-    dependsOn buildDocker
-    commandLine 'docker', 'tag', 'grpc-voting:latest', 'gcr.io/alien-fold-180922/grpc-voting:latest'
-}
-
-task pushDocker(type: Exec) {
-    dependsOn tagDocker
-    commandLine 'gcloud', 'docker', '--', 'push', 'gcr.io/alien-fold-180922/grpc-voting:latest'
-}
-
-task deploy(type: Exec) {
-    commandLine './k8s/deploy.sh'
-}
-
-task undeploy(type: Exec) {
-    commandLine 'kubectl', 'delete', '-f', 'k8s/grpc-voting.yaml'
-}
+apply from: 'https://raw.githubusercontent.com/gRPCVsREST/gradle-common/master/common.gradle'
