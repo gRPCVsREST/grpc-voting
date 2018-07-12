@@ -19,7 +19,7 @@ spec:
             - containerPort: 8080
           env:
             - name: grpc_aggregator_host
-              value: "grpc-aggregator-service"
+              value: "grpc-aggregator"
             - name: grpc_aggregator_port
               value: "8080"
             - name: leaderboard_host
